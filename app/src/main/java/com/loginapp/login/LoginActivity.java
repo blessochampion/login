@@ -45,11 +45,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         String passwordValue = password.getText().toString();
         if(usernameValue.isEmpty()){
             username.setError("Field can not be empty");
+            return false;
         }
         if(passwordValue.isEmpty()){
             password.setError("Field can not be empty");
+            return false;
         }
-        return !usernameValue.isEmpty() && !passwordValue.isEmpty();
+        return true;
     }
 
     private void login() {
