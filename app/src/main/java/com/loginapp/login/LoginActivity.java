@@ -1,16 +1,13 @@
 package com.loginapp.login;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -25,9 +22,6 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-
-import static android.R.attr.duration;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener, Response.Listener<JSONObject>, Response.ErrorListener {
     public static final String NO_INTERNET_CONNECTION = "No internet Connection";
@@ -67,13 +61,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             if (inputIsValid()) {
                 if(NetworkUtil.isNetworkAvailable(this)) {
                     makeNetworkCallForLogin(NetworkUtil.getLoginUrl());
-                    try {
-                        Log.e("password", PasswordUtil.SHA1(password.getText().toString().trim()));
-                    } catch (NoSuchAlgorithmException e) {
-                        e.printStackTrace();
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
+
 
                 } else {
                     UIUtils.showToast(this, NO_INTERNET_CONNECTION);
@@ -87,14 +75,22 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private void makeNetworkCallForLogin(String url) {
 
+        String passwordValue = "";
+        try {
+           passwordValue =   PasswordUtil.SHA1(password.getText().toString().trim());
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         try {
             JSONObject requestBody = new JSONObject();
             requestBody.put(USERNAME, username.getText().toString().trim());
-            requestBody.put(PASSWORD, password.getText().toString().trim());
+            requestBody.put(PASSWORD, passwordValue);
 
             mLoadingIndicator.setIndeterminate(true);
             mLoadingIndicator.setCanceledOnTouchOutside(false);
-            mLoadingIndicator.setMessage("Logging you in... Please wait");
+            mLoadingIndicator.setMessage("Loging you in... Please wait");
             mLoadingIndicator.show();
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST
                     , url, requestBody, this, this
@@ -150,6 +146,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     public void onErrorResponse(VolleyError error) {
-
+        UIUtils.showToast(this, "Something Went Wrong... Please try again");
     }
 }

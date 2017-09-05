@@ -15,6 +15,7 @@ public class NetworkUtil {
 
     private static final String BASE_URL = "https://loginappng.herokuapp.com/api/users/";
     private static final String LOGIN = "authenticate";
+    private static final String REGISTER = "register";
     public static final int FAILURE_RESPONSE_CODE = 0;
     public static final int SUCCESS_RESPONSE_CODE = 1;
 
@@ -34,8 +35,10 @@ public class NetworkUtil {
     }
 
 
+    public static String getRegisterUrl() {
+        Uri registerUri = Uri.parse(BASE_URL).buildUpon().appendPath(REGISTER)
+                .build();
 
-
-
-
+        return registerUri.toString();
+    }
 }
