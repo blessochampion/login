@@ -1,7 +1,12 @@
 package com.loginapp.login;
 
+import android.content.Intent;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -10,6 +15,7 @@ import com.loginapp.login.utils.UIUtils;
 
 public class HomeActivity extends AppCompatActivity implements View.OnClickListener {
 
+    public static final String HOME = "Home";
     TextView pointTextView;
     TextView addButton;
     EditText contentEditText;
@@ -22,6 +28,9 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         contentEditText = (EditText) findViewById(R.id.et_contents);
         addButton = (TextView) findViewById(R.id.add_button);
         addButton.setOnClickListener(this);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(HOME);
 
 
     }
@@ -52,5 +61,20 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             contentEditText.setError("Field Can not be empty");
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.home_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.action_logout){
+                finish();
+            return true;
+        }
+        return  super.onOptionsItemSelected(item);
     }
 }

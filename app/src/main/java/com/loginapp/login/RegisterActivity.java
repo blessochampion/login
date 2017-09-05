@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.loginapp.login.utils.UIUtils;
@@ -12,6 +13,11 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     TextView loginTextView;
     TextView signupTextView;
+    EditText usernameEditText;
+    EditText emailEditText;
+    EditText passwordEditText;
+    EditText confirmPasswordEditText;
+
 
 
     @Override
@@ -23,6 +29,46 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
         signupTextView = (TextView) findViewById(R.id.sign_up_button);
         signupTextView.setOnClickListener(this);
+        usernameEditText = (EditText) findViewById(R.id.et_username);
+        emailEditText = (EditText) findViewById(R.id.et_email);
+        passwordEditText = (EditText) findViewById(R.id.et_password);
+        confirmPasswordEditText = (EditText) findViewById(R.id.et_confirm_password);
+
+    }
+
+    private boolean inputIsValid() {
+        String usernameValue = usernameEditText.getText().toString().trim();
+        String emailValue = emailEditText.getText().toString().trim();
+        String passwordValue = passwordEditText.getText().toString().trim();
+        String confirmPasswordValue = confirmPasswordEditText.getText().toString().trim();
+        if(usernameValue.isEmpty()){
+            usernameEditText.setError("Field can not be empty");
+            return false;
+        }
+
+        if(emailValue.isEmpty()){
+            emailEditText.setError("Field can not be empty");
+            return false;
+        }
+        if(!android.util.Patterns.EMAIL_ADDRESS.matcher(emailValue).matches()){
+            emailEditText.setError("Invalid email format");
+            return false;
+        }
+
+        if(passwordValue.isEmpty()){
+            passwordEditText.setError("Field can not be empty");
+            return  false;
+        }
+
+        if(passwordValue.isEmpty()){
+            confirmPasswordEditText.setError("Field can not be empty");
+            return  false;
+        }
+        if(!passwordValue.equals(confirmPasswordValue)){
+            confirmPasswordEditText.setError("password does not match");
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -37,8 +83,14 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         if (v.getId() == R.id.tv_login) {
             onBackPressed();
         } else if (v.getId() == R.id.sign_up_button) {
-            startActivity(new Intent(RegisterActivity.this, HomeActivity.class));
-            overridePendingTransition(R.anim.transition_enter, R.anim.transition_exit);
+            if(inputIsValid()) {
+                signup();
+            }
         }
+    }
+
+    private void signup() {
+        startActivity(new Intent(RegisterActivity.this, HomeActivity.class));
+        overridePendingTransition(R.anim.transition_enter, R.anim.transition_exit);
     }
 }
