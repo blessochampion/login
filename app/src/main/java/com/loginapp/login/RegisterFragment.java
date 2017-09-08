@@ -1,11 +1,14 @@
 package com.loginapp.login;
 
+
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -14,6 +17,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.loginapp.login.data.UserPreference;
+import com.loginapp.login.utils.AuthenticationListener;
 import com.loginapp.login.utils.NetworkUtil;
 import com.loginapp.login.utils.PasswordUtil;
 import com.loginapp.login.utils.UIUtils;
@@ -24,7 +28,11 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 
-public class RegisterActivity extends AppCompatActivity implements View.OnClickListener, Response.Listener<JSONObject>, Response.ErrorListener {
+
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class RegisterFragment extends Fragment implements View.OnClickListener, Response.ErrorListener, Response.Listener<JSONObject> {
 
     public static final String EMAIL = "email";
     TextView loginTextView;
@@ -47,23 +55,42 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private String username;
     private String password;
     ProgressDialog mLoadingIndicator;
+    AuthenticationListener listener;
+
+    public RegisterFragment() {
+        // Required empty public constructor
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
-        loginTextView = (TextView) findViewById(R.id.tv_login);
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        listener = (AuthenticationListener) context;
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View rootView = inflater.inflate(R.layout.fragment_register, container, false);
+        getReferencesToViews(rootView);
+        return rootView;
+    }
+
+    public void getReferencesToViews(View rootView) {
+
+        loginTextView = (TextView) rootView.findViewById(R.id.tv_login);
         loginTextView.setOnClickListener(this);
 
-        signupTextView = (TextView) findViewById(R.id.sign_up_button);
+        signupTextView = (TextView) rootView.findViewById(R.id.sign_up_button);
         signupTextView.setOnClickListener(this);
-        usernameEditText = (EditText) findViewById(R.id.et_username);
-        emailEditText = (EditText) findViewById(R.id.et_email);
-        passwordEditText = (EditText) findViewById(R.id.et_password);
-        confirmPasswordEditText = (EditText) findViewById(R.id.et_confirm_password);
-        mLoadingIndicator = new ProgressDialog(this);
+        usernameEditText = (EditText) rootView.findViewById(R.id.et_username);
+        emailEditText = (EditText) rootView.findViewById(R.id.et_email);
+        passwordEditText = (EditText) rootView.findViewById(R.id.et_password);
+        confirmPasswordEditText = (EditText) rootView.findViewById(R.id.et_confirm_password);
+        mLoadingIndicator = new ProgressDialog(getActivity());
 
     }
+
 
     private boolean inputIsValid() {
         username = usernameEditText.getText().toString().trim();
@@ -101,26 +128,24 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        overridePendingTransition(R.anim.transition_left_to_right, R.anim.transition_right_to_left);
-    }
-
-    @Override
     public void onClick(View v) {
-        UIUtils.hideKeyboard(this);
+        UIUtils.hideKeyboard(getActivity());
         if (v.getId() == R.id.tv_login) {
-            onBackPressed();
+           login();
         } else if (v.getId() == R.id.sign_up_button) {
             if (inputIsValid()) {
-                if(NetworkUtil.isNetworkAvailable(this)) {
+                if (NetworkUtil.isNetworkAvailable(getActivity())) {
                     makeNetworkCallForRegister(NetworkUtil.getRegisterUrl());
 
                 } else {
-                    UIUtils.showToast(this, NO_INTERNET_CONNECTION);
+                    UIUtils.showToast(getActivity(), NO_INTERNET_CONNECTION);
                 }
             }
         }
+    }
+
+    private void login() {
+        listener.displayLogin();
     }
 
     private void makeNetworkCallForRegister(String url) {
@@ -148,41 +173,44 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             );
 
             AppController.getInstance().addToRequestQueue(jsonObjectRequest);
-        }catch (JSONException e){
+        } catch (JSONException e) {
 
         }
-    }
-
-    private void signup() {
-        startActivity(new Intent(RegisterActivity.this, HomeActivity.class));
-        overridePendingTransition(R.anim.transition_enter, R.anim.transition_exit);
     }
 
     @Override
     public void onResponse(JSONObject response) {
 
-        if(mLoadingIndicator != null && mLoadingIndicator.isShowing()){
+        if (mLoadingIndicator != null && mLoadingIndicator.isShowing()) {
             mLoadingIndicator.cancel();
         }
-        try{
+        try {
             int code = response.getInt(CODE);
-            if(code == NetworkUtil.FAILURE_RESPONSE_CODE){
-                UIUtils.showToast(this, response.getString(DESCRIPTION));
-            }else {
+            if (code == NetworkUtil.FAILURE_RESPONSE_CODE) {
+                UIUtils.showToast(getActivity(), response.getString(DESCRIPTION));
+            } else {
                 JSONObject data = response.getJSONObject(DATA);
-                UserPreference userPreference = UserPreference.getInstance(this);
+                UserPreference userPreference = UserPreference.getInstance(getActivity());
                 userPreference.setUserId(data.getInt(KEY_ID));
                 userPreference.setUsername(data.getString(KEY_USERNAME));
                 userPreference.setUserPoint(data.getInt(KEY_POINT));
                 signup();
             }
-        }catch (JSONException e){
+        } catch (JSONException e) {
 
         }
     }
 
+    private void signup() {
+        startActivity(new Intent(getActivity(), HomeActivity.class));
+        getActivity().overridePendingTransition(R.anim.transition_enter, R.anim.transition_exit);
+    }
+
     @Override
     public void onErrorResponse(VolleyError error) {
-
+        if (mLoadingIndicator != null && mLoadingIndicator.isShowing()) {
+            mLoadingIndicator.cancel();
+        }
+        UIUtils.showToast(getActivity(), "Something Went Wrong... Please try again");
     }
 }

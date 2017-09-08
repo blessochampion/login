@@ -9,6 +9,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.loginapp.login.data.UserPreference;
+
 public class SplashActivity extends AppCompatActivity implements Runnable {
 
     private static final long WAITING_TIME = 3000;
@@ -24,9 +26,15 @@ public class SplashActivity extends AppCompatActivity implements Runnable {
 
     }
 
-    private void navigateToLogin() {
-        startActivity(new Intent(SplashActivity.this, LoginActivity.class));
-        overridePendingTransition(R.anim.transition_enter, R.anim.transition_exit);
+    private void navigateToAuthenticationPage() {
+        UserPreference userPreference = UserPreference.getInstance(this);
+        if (userPreference.isUserLoggedIn()) {
+            startActivity(new Intent(this, HomeActivity.class));
+            overridePendingTransition(R.anim.transition_enter, R.anim.transition_exit);
+        } else {
+            startActivity(new Intent(SplashActivity.this, AuthenticationActivity.class));
+            overridePendingTransition(R.anim.transition_enter, R.anim.transition_exit);
+        }
     }
 
     private void setTextViewFont() {
@@ -42,6 +50,6 @@ public class SplashActivity extends AppCompatActivity implements Runnable {
 
     @Override
     public void run() {
-        navigateToLogin();
+        navigateToAuthenticationPage();
     }
 }

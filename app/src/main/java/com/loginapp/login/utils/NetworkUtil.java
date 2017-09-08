@@ -13,9 +13,10 @@ import android.net.Uri;
 public class NetworkUtil {
     private static final String TAG = NetworkUtil.class.getSimpleName();
 
-    private static final String BASE_URL = "https://loginappng.herokuapp.com/api/users/";
+    private static final String BASE_URL = "https://loginmobileapp.herokuapp.com/api/users/";
     private static final String LOGIN = "authenticate";
     private static final String REGISTER = "register";
+    private static final String CONTENT_UPDATE = "addcontent";
     public static final int FAILURE_RESPONSE_CODE = 0;
     public static final int SUCCESS_RESPONSE_CODE = 1;
 
@@ -40,5 +41,12 @@ public class NetworkUtil {
                 .build();
 
         return registerUri.toString();
+    }
+
+    public static String getContentUpdateUrl() {
+        Uri contentUpdateUri = Uri.parse(BASE_URL).buildUpon().appendPath(CONTENT_UPDATE)
+                .build();
+
+        return contentUpdateUri.toString();
     }
 }
