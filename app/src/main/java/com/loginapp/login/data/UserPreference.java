@@ -14,6 +14,7 @@ public class UserPreference
     private static final String KEY_USER_ID = "user_id";
     private static final String KEY_POINT = "point";
     private static final String KEY_USER_LOGGED_IN = "logged_in";
+    private static final String KEY_CONTENT_INDEX = "index";
 SharedPreferences sharedPreferences;
     static UserPreference INSTANCE;
 
@@ -53,6 +54,16 @@ SharedPreferences sharedPreferences;
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(KEY_POINT, point);
         editor.commit();
+    }
+
+    public void setContentIndex(int position){
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(KEY_CONTENT_INDEX, position);
+        editor.commit();
+    }
+
+    public int getContentIndex(){
+        return sharedPreferences.getInt(KEY_CONTENT_INDEX, -1);
     }
 
     public int getPoint(){

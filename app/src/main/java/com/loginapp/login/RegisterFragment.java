@@ -3,9 +3,11 @@ package com.loginapp.login;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -202,8 +204,21 @@ public class RegisterFragment extends Fragment implements View.OnClickListener, 
     }
 
     private void signup() {
-        startActivity(new Intent(getActivity(), HomeActivity.class));
-        getActivity().overridePendingTransition(R.anim.transition_enter, R.anim.transition_exit);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                getActivity());
+        alertDialogBuilder.setTitle("Registration Info");
+        alertDialogBuilder.setMessage("An email has been sent to you, Please confirm your account " +
+                "by clicking the link sent to your email" );
+        alertDialogBuilder.setCancelable(false);
+        alertDialogBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                listener.displayLogin();
+            }
+        });
+
+        AlertDialog dialog = alertDialogBuilder.create();
+        dialog.show();
     }
 
     @Override
