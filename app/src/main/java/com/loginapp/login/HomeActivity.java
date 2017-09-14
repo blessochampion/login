@@ -51,7 +51,6 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     TextView pointTextView;
     TextView addButton;
     EditText contentEditText;
-    ProgressDialog mLoadingIndicator;
     private String content;
 
     @Override
@@ -71,7 +70,6 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         if (userPreference.getPoint() >= 0) {
             pointTextView.setText(String.valueOf(userPreference.getPoint()));
         }
-        mLoadingIndicator = new ProgressDialog(this);
 
 
     }
@@ -96,12 +94,19 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                     makeNetworkCallForContentUpdate(NetworkUtil.getContentUpdateUrl());
 
                 } else {
-                    UIUtils.showToast(this, NO_INTERNET_CONNECTION);
+                    serverSyncNeeded();
+                    saveToFile();
+                    deductPoint();
                 }
             } else {
                 contentEditText.setError("Field Can not be empty");
             }
         }
+    }
+
+    private void serverSyncNeeded() {
+        UserPreference userPreference = UserPreference.getInstance(this);
+        userPreference.setServerSyncNeeded(true);
     }
 
     private boolean inputIsValid() {
@@ -116,10 +121,6 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
             requestBody.put(USER_ID, preference.getUserId());
             requestBody.put(CONTENT, contentEditText.getText().toString().trim());
 
-            mLoadingIndicator.setIndeterminate(true);
-            mLoadingIndicator.setCanceledOnTouchOutside(false);
-            mLoadingIndicator.setMessage("Saving your content");
-            mLoadingIndicator.show();
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST
                     , url, requestBody, this, this
             );
@@ -135,6 +136,8 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         if (currentValue > 0) {
             currentValue--;
             pointTextView.setText(String.valueOf(currentValue));
+            UserPreference userPreference = UserPreference.getInstance(AppController.getInstance().getApplicationContext());
+            userPreference.setUserPoint(currentValue);
         } else {
             contentEditText.setError("You do not have enough points");
         }
@@ -164,13 +167,12 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onErrorResponse(VolleyError error) {
         UIUtils.showToast(this, "Something went wrong, please try again...");
+        serverSyncNeeded();
     }
 
     @Override
     public void onResponse(JSONObject response) {
-        if (mLoadingIndicator != null && mLoadingIndicator.isShowing()) {
-            mLoadingIndicator.cancel();
-        }
+
         try {
             int code = response.getInt(CODE);
             if (code == NetworkUtil.FAILURE_RESPONSE_CODE) {

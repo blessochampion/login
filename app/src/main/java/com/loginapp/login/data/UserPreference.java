@@ -15,6 +15,7 @@ public class UserPreference
     private static final String KEY_POINT = "point";
     private static final String KEY_USER_LOGGED_IN = "logged_in";
     private static final String KEY_CONTENT_INDEX = "index";
+    private static final String KEY_NEED_SERVER_SYNC = "need_server_sync";
 SharedPreferences sharedPreferences;
     static UserPreference INSTANCE;
 
@@ -48,6 +49,16 @@ SharedPreferences sharedPreferences;
 
     public long getUserId(){
         return sharedPreferences.getLong(KEY_USER_ID, 0);
+    }
+
+    public boolean isServeSyncNeeded(){
+        return  sharedPreferences.getBoolean(KEY_NEED_SERVER_SYNC, false);
+    }
+
+    public void setServerSyncNeeded(boolean serverSyncNeeded){
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(KEY_NEED_SERVER_SYNC, serverSyncNeeded);
+        editor.commit();
     }
 
     public void setUserPoint(int point){
